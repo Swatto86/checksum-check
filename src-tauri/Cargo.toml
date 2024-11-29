@@ -1,0 +1,22 @@
+[package]
+name = "checksum-check"
+version = "0.1.0"
+description = "A file checksum checker application"
+authors = ["you"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0", features = ["tray-icon"] }
+tauri-plugin-dialog = "2.0.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10.8"
+md-5 = "0.10.6"
+sha1 = "0.10.6"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+

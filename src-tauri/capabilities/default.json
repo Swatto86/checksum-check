@@ -1,0 +1,15 @@
+{
+  "$schema": "https://tauri.app/v2/schemas/capabilities.json",
+  "identifier": "default",
+  "description": "Default capabilities for the checksum checker application",
+  "windows": ["main"],
+  "permissions": [
+    "dialog:allow-open",
+    "core:tray:allow-new",
+    "core:tray:allow-set-menu",
+    "core:window:allow-hide",
+    "core:window:allow-show",
+    "core:window:allow-set-focus"
+  ],
+  "platforms": ["linux", "macOS", "windows"]
+}
