@@ -1,8 +1,8 @@
 [package]
 name = "checksum-check"
 version = "0.1.0"
-description = "A file checksum checker application"
-authors = ["you"]
+description = "Shows various hash values of a file"
+authors = ["Swatto"]
 edition = "2021"
 
 [build-dependencies]
