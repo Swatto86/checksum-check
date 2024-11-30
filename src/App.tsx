@@ -13,6 +13,7 @@ function App() {
   } | null>(null);
   const [theme, setTheme] = useState('dark');
   const [isDragging, setIsDragging] = useState(false);
+  const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
   useEffect(() => {
     if (hashResults) {
@@ -146,10 +147,14 @@ function App() {
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium uppercase">{algo}:</span>
                         <button 
-                          className="btn btn-xs btn-ghost"
-                          onClick={() => navigator.clipboard.writeText(hash)}
+                          className={`btn btn-xs ${copiedHash === algo ? 'btn-success' : 'btn-ghost'}`}
+                          onClick={() => {
+                            navigator.clipboard.writeText(hash);
+                            setCopiedHash(algo);
+                            setTimeout(() => setCopiedHash(null), 1000);
+                          }}
                         >
-                          Copy
+                          {copiedHash === algo ? 'Copied!' : 'Copy'}
                         </button>
                       </div>
                       <p className="text-sm break-all font-mono bg-base-300 p-2 rounded">{hash}</p>
