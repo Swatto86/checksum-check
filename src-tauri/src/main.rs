@@ -9,7 +9,7 @@ use std::io::{self, Read};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager,
+    Manager, WindowEvent,
 };
 
 #[derive(serde::Serialize)]
@@ -66,11 +66,21 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
+            // Set up window close handler
+            if let Some(window) = app.get_webview_window("main") {
+                let window_clone = window.clone();
+                window.on_window_event(move |event| {
+                    if let WindowEvent::CloseRequested { api, .. } = event {
+                        window_clone.hide().unwrap();
+                        api.prevent_close();
+                    }
+                });
+            }
+
             // Center and show the main window on launch
             if let Some(window) = app.get_webview_window("main") {
                 let window_clone = window.clone();
                 tauri::async_runtime::spawn(async move {
-                    std::thread::sleep(std::time::Duration::from_millis(100));
                     let _ = window_clone.center();
                     let _ = window_clone.show();
                     let _ = window_clone.set_focus();
@@ -106,7 +116,6 @@ fn main() {
                                 let _ = window.hide();
                             } else {
                                 let _ = window.show();
-                                let _ = window.set_focus();
                             }
                         }
                     }
