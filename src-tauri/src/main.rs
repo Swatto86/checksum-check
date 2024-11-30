@@ -1,15 +1,15 @@
 // Prevents additional console window on Windows in release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use md5::Md5;
+use sha1::Sha1;
+use sha2::{Digest, Sha256, Sha512};
 use std::fs::File;
 use std::io::{self, Read};
-use sha2::{Sha256, Sha512, Digest};
-use sha1::Sha1;
-use md5::Md5;
 use tauri::{
-    Manager,
     menu::{Menu, MenuItem},
-    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    Manager,
 };
 
 #[derive(serde::Serialize)]
@@ -64,12 +64,13 @@ async fn calculate_checksum(path: String) -> Result<HashResult, String> {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .setup(|app| {
             // Create menu items
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let show_i = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
             let hide_i = MenuItem::with_id(app, "hide", "Hide", true, None::<&str>)?;
-            
+
             // Create the menu
             let menu = Menu::with_items(app, &[&show_i, &hide_i, &quit_i])?;
 
