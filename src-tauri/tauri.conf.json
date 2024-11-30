@@ -18,7 +18,8 @@
         "height": 600,
         "resizable": true,
         "decorations": true,
-        "theme": "Light"
+        "theme": "Dark",
+        "transparent": true
       }
     ],
     "security": {

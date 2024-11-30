@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
+import { Window, LogicalSize } from '@tauri-apps/api/window';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -12,6 +13,17 @@ function App() {
   } | null>(null);
   const [theme, setTheme] = useState('dark');
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (hashResults) {
+      const resizeWindow = async () => {
+        const appWindow = new Window('main');
+        const documentHeight = document.documentElement.scrollHeight;
+        await appWindow.setSize(new LogicalSize(800, documentHeight + 40));
+      };
+      resizeWindow();
+    }
+  }, [hashResults]);
 
   const handleFileSelect = async () => {
     try {
