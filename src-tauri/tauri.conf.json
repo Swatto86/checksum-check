@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "Checksum Checker",
+        "title": "Checksum Check",
         "width": 800,
         "height": 600,
         "resizable": true,
