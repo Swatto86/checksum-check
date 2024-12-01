@@ -18,12 +18,25 @@ struct HashResult {
     sha1: String,
     sha256: String,
     sha512: String,
+    file_size: u64,
+    modified: String,
+    created: String,
 }
 
 fn calculate_file_hash(path: &str) -> io::Result<HashResult> {
     let mut file = File::open(path)?;
+    let metadata = file.metadata()?;
     let mut buffer = Vec::new();
     file.read_to_end(&mut buffer)?;
+
+    // Get file metadata
+    let file_size = metadata.len();
+    let modified = metadata.modified()?.duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let created = metadata.created()?.duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
 
     // Calculate MD5
     let mut md5_hasher = Md5::new();
@@ -54,6 +67,9 @@ fn calculate_file_hash(path: &str) -> io::Result<HashResult> {
         sha1: sha1_hex,
         sha256: sha256_hex,
         sha512: sha512_hex,
+        file_size,
+        modified: modified.to_string(),
+        created: created.to_string(),
     })
 }
 
@@ -83,11 +99,11 @@ fn main() {
                 tauri::async_runtime::spawn(async move {
                     // First center the window
                     let _ = window_clone.center();
-                    // Then move it up by 10% of the screen height
+                    // Then move it up by 15% of the screen height
                     if let Some(monitor) = window_clone.current_monitor().ok().flatten() {
                         if let Ok(position) = window_clone.outer_position() {
                             let monitor_size = monitor.size();
-                            let offset_y = (monitor_size.height as f64 * 0.1) as i32;
+                            let offset_y = (monitor_size.height as f64 * 0.15) as i32;
                             let new_position = tauri::Position::Physical(tauri::PhysicalPosition {
                                 x: position.x,
                                 y: position.y - offset_y,

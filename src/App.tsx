@@ -3,6 +3,23 @@ import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { Window, LogicalSize } from '@tauri-apps/api/window';
 
+function formatFileSize(bytes: number): string {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = bytes;
+  let unitIndex = 0;
+  
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+  
+  return `${size.toFixed(2)} ${units[unitIndex]}`;
+}
+
+function formatDate(timestamp: string): string {
+  return new Date(parseInt(timestamp) * 1000).toLocaleString();
+}
+
 function App() {
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [hashResults, setHashResults] = useState<{
@@ -10,6 +27,9 @@ function App() {
     sha1: string;
     sha256: string;
     sha512: string;
+    file_size: number;
+    modified: string;
+    created: string;
   } | null>(null);
   const [theme, setTheme] = useState('dark');
   const [isDragging, setIsDragging] = useState(false);
@@ -158,21 +178,32 @@ function App() {
             )}
             <div className="card bg-base-200 p-4">
               <h3 className="font-semibold mb-2">File Information</h3>
-              <p className="text-sm break-all">Path: {selectedFile}</p>
+              <div className="space-y-2">
+                <p className="text-sm break-all">Path: {selectedFile}</p>
+                {hashResults && (
+                  <>
+                    <p className="text-sm">Size: {formatFileSize(hashResults.file_size)}</p>
+                    <p className="text-sm">Modified: {formatDate(hashResults.modified)}</p>
+                    <p className="text-sm">Created: {formatDate(hashResults.created)}</p>
+                  </>
+                )}
+              </div>
             </div>
 
             {hashResults && (
               <div className="card bg-base-200 p-4">
                 <h3 className="font-semibold mb-4">Checksums</h3>
                 <div className="space-y-4">
-                  {Object.entries(hashResults).map(([algo, hash]) => (
+                  {Object.entries(hashResults)
+                    .filter(([algo]) => ['md5', 'sha1', 'sha256', 'sha512'].includes(algo))
+                    .map(([algo, hash]) => (
                     <div key={algo} className="space-y-1">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium uppercase">{algo}:</span>
                         <button 
                           className={`btn btn-xs ${copiedHash === algo ? 'btn-success' : 'btn-ghost'}`}
                           onClick={() => {
-                            navigator.clipboard.writeText(hash);
+                            navigator.clipboard.writeText(hash.toString());
                             setCopiedHash(algo);
                             setTimeout(() => setCopiedHash(null), 1000);
                           }}
