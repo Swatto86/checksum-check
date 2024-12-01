@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { Window, LogicalSize } from '@tauri-apps/api/window';
+import { getCurrentWebview } from '@tauri-apps/api/webview';
 
 function formatFileSize(bytes: number): string {
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -46,6 +47,38 @@ function App() {
     }
   }, [hashResults]);
 
+  useEffect(() => {
+    let unlistenDragDrop: (() => void) | undefined;
+
+    const setupDragDrop = async () => {
+      try {
+        unlistenDragDrop = await getCurrentWebview().onDragDropEvent((event) => {
+          if (event.payload.type === 'drop' && event.payload.paths.length > 0) {
+            const filePath = event.payload.paths[0];
+            setSelectedFile(filePath);
+            invoke('calculate_checksum', { path: filePath })
+              .then((result) => setHashResults(result as any))
+              .catch((error) => console.error('Error calculating checksum:', error));
+          } else if (event.payload.type === 'over') {
+            setIsDragging(true);
+          } else {
+            setIsDragging(false);
+          }
+        });
+      } catch (error) {
+        console.error('Error setting up drag and drop:', error);
+      }
+    };
+
+    setupDragDrop();
+
+    return () => {
+      if (unlistenDragDrop) {
+        unlistenDragDrop();
+      }
+    };
+  }, []);
+
   const handleFileSelect = async () => {
     try {
       const selected = await open({
@@ -74,35 +107,16 @@ function App() {
     }
   };
 
-  const handleDrop = async (e: React.DragEvent) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(false);
-
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      const filePath = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-      });
-      setSelectedFile(filePath);
-      try {
-        const result = await invoke('calculate_checksum', { path: filePath });
-        setHashResults(result as any);
-      } catch (error) {
-        console.error('Error calculating checksum:', error);
-      }
-    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(false);
   };
 
   const toggleTheme = () => {

@@ -103,7 +103,7 @@ fn main() {
                     if let Some(monitor) = window_clone.current_monitor().ok().flatten() {
                         if let Ok(position) = window_clone.outer_position() {
                             let monitor_size = monitor.size();
-                            let offset_y = (monitor_size.height as f64 * 0.15) as i32;
+                            let offset_y = (monitor_size.height as f64 * 0.20) as i32;
                             let new_position = tauri::Position::Physical(tauri::PhysicalPosition {
                                 x: position.x,
                                 y: position.y - offset_y,
