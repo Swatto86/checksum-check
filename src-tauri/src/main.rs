@@ -77,11 +77,24 @@ fn main() {
                 });
             }
 
-            // Center and show the main window on launch
+            // Position and show the main window on launch
             if let Some(window) = app.get_webview_window("main") {
                 let window_clone = window.clone();
                 tauri::async_runtime::spawn(async move {
+                    // First center the window
                     let _ = window_clone.center();
+                    // Then move it up by 10% of the screen height
+                    if let Some(monitor) = window_clone.current_monitor().ok().flatten() {
+                        if let Ok(position) = window_clone.outer_position() {
+                            let monitor_size = monitor.size();
+                            let offset_y = (monitor_size.height as f64 * 0.1) as i32;
+                            let new_position = tauri::Position::Physical(tauri::PhysicalPosition {
+                                x: position.x,
+                                y: position.y - offset_y,
+                            });
+                            let _ = window_clone.set_position(new_position);
+                        }
+                    }
                     let _ = window_clone.show();
                     let _ = window_clone.set_focus();
                 });
