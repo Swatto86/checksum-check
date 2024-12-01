@@ -129,10 +129,14 @@ function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, []);
 
-  const handleReset = () => {
+  const handleReset = async () => {
     setSelectedFile(null);
     setHashResults(null);
     setCopiedHash(null);
+    
+    // Reset window size to original dimensions
+    const appWindow = new Window('main');
+    await appWindow.setSize(new LogicalSize(800, 600));
   };
 
   return (
