@@ -148,7 +148,7 @@ For verification purposes, here are the expected hash values for common test inp
 
 ### Project Structure
 ```
-checksum-check/
+ChecksumCheck/
 ├── src/                    # Frontend React source
 │   ├── tests/             # Frontend test files (62 tests)
 │   │   ├── App.test.tsx   # Component tests (13 tests)
